@@ -1,0 +1,7 @@
+{{ define "content" }}
+<div class="container" x-data="{ count: 0 }">
+    <div class="big-text" x-ref="request" hx-get="/counter" hx-trigger="request"
+        @click="count = (count + 1) % 16;$refs.request.setAttribute('hx-vals',JSON.stringify({ count }));htmx.trigger($refs.request, 'request');">
+        :)</div>
+</div>
+{{ end }}
