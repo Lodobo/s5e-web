@@ -8,50 +8,13 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 )
 
 type PageData struct {
 	Title string
-}
-
-func replaceText(i string) string {
-	switch i {
-	case "0":
-		return ":)"
-	case "1":
-		return ":("
-	case "2":
-		return ":0"
-	case "3":
-		return ":|"
-	case "4":
-		return ":/"
-	case "5":
-		return ":D"
-	case "6":
-		return "xD"
-	case "7":
-		return "0_0"
-	case "8":
-		return "D:"
-	case "9":
-		return "-_-"
-	case "10":
-		return ":-)"
-	case "11":
-		return ">:)"
-	case "12":
-		return ">:("
-	case "13":
-		return "^-^"
-	case "14":
-		return ":^)"
-	case "15":
-		return "x_x"
-	}
-	return ":)"
 }
 
 func getRoot(w http.ResponseWriter, r *http.Request) {
@@ -78,8 +41,23 @@ func getRoot(w http.ResponseWriter, r *http.Request) {
 }
 
 func getCount(w http.ResponseWriter, r *http.Request) {
-	count := r.URL.Query().Get("count")
-	fmt.Fprint(w, replaceText(count))
+	count, err := strconv.Atoi(r.URL.Query().Get("count"))
+	if err != nil {
+		http.Error(w, "Invalid count", http.StatusBadRequest)
+		return
+	}
+
+	var emotes = [16]string{
+		":)", ":(", ":0", ":|", ":/", ":D", "xD", "0_0",
+		"D:", "-_-", ":-)", ">:)", ">:(", "^_^", ":^)", "x_x",
+	}
+
+	if count < 0 || count >= len(emotes) {
+		http.Error(w, "Count out of range", http.StatusBadRequest)
+		return
+	}
+
+	fmt.Fprint(w, emotes[count])
 }
 
 func getAbout(w http.ResponseWriter, r *http.Request) {
